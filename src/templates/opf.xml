@@ -16,7 +16,7 @@
   </manifest>
 
   <spine toc="toc">
-    <itemref idref="toc"/>
+    <itemref idref="item1"/>
     {% for feed in feeds %}
     <itemref idref="item{{feed.number}}"/>
     {% endfor %}

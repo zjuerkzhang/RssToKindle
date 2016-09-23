@@ -114,7 +114,6 @@ def mobi(input_file, exec_path):
     system("%s %s" % (exec_path, input_file))
 '''
 if __name__ == "__main__":
-    from sys import argv, exit
 
     print("Running RSSToKindle...")
     print("-> Generating files...")
