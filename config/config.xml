@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+<feeds>
+    <feed>
+        <link>http://cn.reuters.com/rssFeed/CNAnalysesNews/</link>
+        <parser>ReutersParser</parser>
+    </feed>
+    <feed>
+        <link>http://feeds.feedburner.com/letscorp/aDmw</link>
+        <parser>WallOutsideParser</parser>
+    </feed>
+</feeds>
+</config>
