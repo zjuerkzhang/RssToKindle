@@ -16,7 +16,9 @@ ROOT = path.dirname(path.abspath(__file__))
 reload(sys)  
 sys.setdefaultencoding('utf8')  
 
-def build(config_file, output_dir, max_old=None):
+
+
+def build(config_file, output_dir ):
     """
     Given a list of feeds URLs and the path of a directory, writes the necessary
     for building a MOBI document.
@@ -24,10 +26,6 @@ def build(config_file, output_dir, max_old=None):
     max_old must be either None or a timedelta. It defines the maximum age of
     posts which should be considered.
     """
-
-    # Convert max_old if needed.
-    if max_old == None:
-        max_old = timedelta.max
 
     # Give the feeds URLs to Feedparser to have nicely usable feed objects.
     feeds_config = get_feed_config.get_feeds_from_xml(config_file) 
@@ -39,8 +37,12 @@ def build(config_file, output_dir, max_old=None):
         my_log.debug_print(parser_instance_str)
         parser = eval(parser_instance_str)
         feed_data = parser.parse()
-        data.append(feed_data)
-
+        if len(feed_data['entries']) > 0:
+            data.append(feed_data)
+    
+    if len(data) <= 0:
+        my_log.write_to_log_file("<--Info-->: no new items for sending")
+        return False
     ## Initialize some counters for the TOC IDs.
     ## We start counting at 2 because 1 is the TOC itself.
     feed_number = 1
@@ -96,7 +98,7 @@ def build(config_file, output_dir, max_old=None):
     for name in listdir(path.join(ROOT, 'assets')):
         copy(path.join(ROOT, 'assets', name), path.join(output_dir, name))
     # copytree(path.join(ROOT, 'assets'), output_dir)
-
+    return True
 
 def render_and_write(template_name, context, output_name, output_dir):
     """Render `template_name` with `context` and write the result in the file
@@ -108,18 +110,21 @@ def render_and_write(template_name, context, output_name, output_dir):
     f.write(template.render(**context))
     f.close()
 
-'''
+
 def mobi(input_file, exec_path):
     """Execute the KindleGen binary to create a MOBI file."""
     system("%s %s" % (exec_path, input_file))
-'''
-if __name__ == "__main__":
 
-    print("Running RSSToKindle...")
-    print("-> Generating files...")
-    build('../config/config.xml', 'temp', 1)
-'''    
-    print("-> Build the MOBI file using KindleGen...")
-    mobi(path.join(argv[1], 'daily.opf'), argv[3])
-    print("Done")
-'''
+if __name__ == "__main__":
+    
+    system("rm -rf temp/*")
+
+    my_log.debug_print("Running RSSToKindle...")
+    my_log.debug_print("-> Generating files...")
+    medium_files_created = build('../config/config.xml', 'temp')
+
+    if medium_files_created:
+        my_log.debug_print("-> Build the MOBI file using KindleGen...")
+        mobi('temp/daily.opf', '../kindlegen/kindlegen')
+    my_log.debug_print("Done")
+
