@@ -6,8 +6,15 @@ import urllib2
 import timestamp_fetcher
 
 class GeneralParser(object):
-    def __init__(self, link):
-        self.feed_link = link
+    def __init__(self, feed_info):
+        self.feed_link = feed_info['link'] 
+        self.ini_key = feed_info['nick']
+        if len(feed_info['keywords']) <= 0:
+            self.key_flag = False
+            self.keys = []
+        else:
+            self.key_flag = True
+            self.keys = feed_info['keywords']
 
     def get_full_description(self, entry):
         ret_str = entry.description
@@ -23,10 +30,20 @@ class GeneralParser(object):
             my_log.debug_print("===> [old one]")
             return (False, '')
 
+    def __is_entry_contain_key(self, entry_title):
+        if not self.key_flag:
+            my_log.debug_print("---> contain keyword")
+            return True
+        for key in self.keys:
+            if entry_title.find(key) >= 0:
+                my_log.debug_print("---> contain keyword")
+                return True
+        return False
+
     def parse(self): 
-        last_time = timestamp_fetcher.getStoredTimestamp(self.__class__.__name__)
+        last_time = timestamp_fetcher.getStoredTimestamp(self.ini_key)
         update_time = last_time
-        my_log.debug_print("last_time for %s %s" % (self.__class__.__name__, last_time))
+        my_log.debug_print("last_time for %s %s" % (self.ini_key, last_time))
         feed = feedparser.parse(self.feed_link)
         feed_data = {
                         'title': feed.feed.title,
@@ -35,6 +52,8 @@ class GeneralParser(object):
         for entry in feed.entries:
             (b_newer, entry_time) = self.__is_entry_new(entry, last_time)
             if b_newer:
+                if not self.__is_entry_contain_key(entry.title):
+                    continue
                 if cmp(entry_time, update_time) > 0:
                     update_time = entry_time
                 entry_data = {
@@ -44,7 +63,7 @@ class GeneralParser(object):
                              }
                 feed_data['entries'].append(entry_data)
         if len(feed_data['entries']) > 0:
-            timestamp_fetcher.updateStoredTimestamp(self.__class__.__name__, update_time)
+            timestamp_fetcher.updateStoredTimestamp(self.ini_key, update_time)
         return feed_data
 '''
 if __name__ == "__main__":

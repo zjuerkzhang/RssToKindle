@@ -5,6 +5,8 @@ sample_config_file = "../config/config.xml"
 feed_tag_name = "feed"
 link_tag_name = "link"
 parser_tag_name = "parser"
+keyword_tag_name="keyword"
+nick_tag_name="nick"
 
 def get_keyword_from_xml(config_file = sample_config_file):
     if os.path.isfile(config_file):
@@ -26,9 +28,15 @@ def get_feeds_from_xml(config_file = sample_config_file):
         root = xml_dom.documentElement
         feed_nodes = root.getElementsByTagName(feed_tag_name)
         for feed_node in feed_nodes:
+            keys = []
+            keywords = feed_node.getElementsByTagName(keyword_tag_name)
+            for keyword in keywords:
+                keys.append(keyword.childNodes[0].data)
             one_feed = { 
                            'link': feed_node.getElementsByTagName(link_tag_name)[0].firstChild.data,
                            'parser': feed_node.getElementsByTagName(parser_tag_name)[0].firstChild.data,
+                           'nick': feed_node.getElementsByTagName(nick_tag_name)[0].firstChild.data,
+                           'keywords': keys
                        }
             feeds.append(one_feed)
         return feeds

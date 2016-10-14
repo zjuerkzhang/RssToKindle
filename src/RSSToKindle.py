@@ -33,7 +33,7 @@ def build(config_file, output_dir ):
     # which will be passed to the templates.
     data = []
     for feed_info in feeds_config:
-        parser_instance_str = feed_info['parser'] + "('" + feed_info['link'] + "')"
+        parser_instance_str = feed_info['parser'] + "(feed_info)"
         my_log.debug_print(parser_instance_str)
         parser = eval(parser_instance_str)
         feed_data = parser.parse()
