@@ -17,7 +17,12 @@ class WallOutsideParser(GeneralParser):
         return ret_str        
 
 if __name__ == "__main__":
-    parser = eval("WallOutsideParser('http://feeds.feedburner.com/letscorp/aDmw')")
+    feed_info = {} 
+    feed_info['link'] = 'http://feeds.feedburner.com/letscorp/aDmw'
+    feed_info['parser'] = 'WallOutsideParser'
+    feed_info['nick'] = 'WallOutside'
+    feed_info['keywords'] = []
+    parser = eval("WallOutsideParser(feed_info)")
     feed_data = parser.parse()
     print ' '*1 + 'feed_title: ' + feed_data['title']
     print ' '*1 + 'entries: '

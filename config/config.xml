@@ -25,6 +25,16 @@
         <link>http://feeds.feedburner.com/letscorp/aDmw</link>
         <parser>WallOutsideParser</parser>
         <nick>WallOutside</nick>
+        <keywords>
+            <keyword>纽约时报</keyword>
+            <keyword>华尔街日报</keyword>
+            <keyword>安邦经济</keyword>
+        </keywords>
+    </feed>
+    <feed>
+        <link>http://www.ftchinese.com/rss/hotstoryby7day</link>
+        <parser>FTParser</parser>
+        <nick>FT</nick>
     </feed>
 </feeds>
 </config>

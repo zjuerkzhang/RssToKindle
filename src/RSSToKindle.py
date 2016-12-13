@@ -7,6 +7,7 @@ import codecs
 import get_feed_config
 from ReutersParser import ReutersParser
 from WallOutsideParser import WallOutsideParser
+from FTParser import FTParser
 import my_log
 import sys
 
