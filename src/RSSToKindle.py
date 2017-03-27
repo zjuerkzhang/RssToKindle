@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from shutil import copy
 from os import path, listdir, system
 import feedparser
@@ -64,7 +64,7 @@ def build(config_file, output_dir ):
 
     # Wrap data and today's date in a dict to use the magic of **.
     wrap = {
-        'date': date.today().isoformat(),
+        'date': datetime.today().strftime("%Y-%m-%d-%H-%M"),
         'feeds': data,
     }
     
