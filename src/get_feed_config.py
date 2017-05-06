@@ -36,6 +36,7 @@ def get_feeds_from_xml(config_file = sample_config_file):
                            'link': feed_node.getElementsByTagName(link_tag_name)[0].firstChild.data,
                            'parser': feed_node.getElementsByTagName(parser_tag_name)[0].firstChild.data,
                            'nick': feed_node.getElementsByTagName(nick_tag_name)[0].firstChild.data,
+                           'only_title': [0, 1][len(feed_node.getElementsByTagName("only_title"))>0 and feed_node.getElementsByTagName("only_title")[0].firstChild.data=="yes"],
                            'keywords': keys
                        }
             feeds.append(one_feed)

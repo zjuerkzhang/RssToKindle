@@ -5,6 +5,7 @@
         <link>http://cn.reuters.com/rssFeed/chinaNews/</link>
         <parser>ReutersParser</parser>
         <nick>ReutersChinaNews</nick>
+        <only_title>yes</only_title>
     </feed>
     <feed>
         <link>http://cn.reuters.com/rssFeed/CNAnalysesNews/</link>
@@ -28,7 +29,9 @@
         <keywords>
             <keyword>纽约时报</keyword>
             <keyword>华尔街日报</keyword>
-            <keyword>安邦经济</keyword>
+            <keyword>华尔街见闻</keyword>
+            <keyword>苹果日报</keyword>
+            <keyword>安邦</keyword>
         </keywords>
     </feed>
     <feed>
