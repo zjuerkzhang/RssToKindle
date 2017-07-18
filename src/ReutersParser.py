@@ -21,13 +21,18 @@ class ReutersParser(GeneralParser):
             my_log.write_to_log_file(e.fp.read())
             return ''
         html = page.read()
-        pattern = re.compile('<span id="article-text">.*?</span></span>', re.S)
+        pattern = re.compile('<div class="ArticleBody_body_2ECha" data-reactid="\d+">.*?</div></div>', re.S)
         strs = pattern.findall(html)
-        content = strs[0]
-        re_add_nl = re.compile('<span[^>]+>')
-        content = re_add_nl.sub('', content)
-        re_filter = re.compile('</span>')
-        content = re_filter.sub('', content)
+        content = ""
+        if len(strs) > 0:
+            content = strs[0]
+            re_add_nl = re.compile('<div[^>]+>')
+            content = re_add_nl.sub('', content)
+            re_filter = re.compile('</div>')
+            content = re_filter.sub('', content)
+            re_filter = re.compile('data-reactid="\d+"')
+            content = re_filter.sub('', content)
+            my_log.debug_print(content)
         return content
 
 if __name__ == "__main__":
