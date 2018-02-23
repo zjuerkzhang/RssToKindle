@@ -12,6 +12,8 @@ import my_log
 import sys
 import json
 
+g_mobi_mode = False # True: mobi mode; False: html mode
+
 templates_env = Environment(loader=PackageLoader('RSSToKindle', 'templates'))
 ROOT = path.dirname(path.abspath(__file__))
 reload(sys)  
@@ -27,10 +29,10 @@ def abstract_feed_data(feed_data):
     content_str = "<p></p>"
     for entry in feed_data['entries']:
         content_str = content_str + "<p>" + entry['title'] + "</p>"
-    new_feed_data['entries'].append({'title': datetime.today().strftime("%Y-%m-%d-%H-%M"), 'description': content_str})
+    new_feed_data['entries'].append({'title': datetime.today().strftime("Need_Merge_%Y-%m-%d-%H-%M"), 'description': content_str})
     return new_feed_data
 
-def fetch_rss_content(config_file):
+def fetch_rss_content(feeds_config):
     """
     Given a list of feeds URLs and the path of a directory, writes the necessary
     for building a MOBI document.
@@ -39,12 +41,11 @@ def fetch_rss_content(config_file):
     posts which should be considered.
     """
 
-    # Give the feeds URLs to Feedparser to have nicely usable feed objects.
-    feeds_config = get_feed_config.get_feeds_from_xml(config_file) 
     # Parse the feeds and grave useful information to build a structure
     # which will be passed to the templates.
     data = []
     for feed_info in feeds_config:
+        my_log.debug_print(feed_info)
         parser_instance_str = feed_info['parser'] + "(feed_info)"
         my_log.debug_print(parser_instance_str)
         parser = eval(parser_instance_str)
@@ -58,7 +59,56 @@ def fetch_rss_content(config_file):
         my_log.write_to_log_file("<--Info-->: no new items got from RSS")
     return data
 
-def build(data, output_dir ):    
+def build_html(data, output_dir ):    
+    if len(data) <= 0:
+        return False
+    ## Initialize some counters for the TOC IDs.
+    ## We start counting at 2 because 1 is the TOC itself.
+    feed_number = 1
+    play_order = 1
+
+    for feed in data:
+        feed_number += 1
+        play_order += 1
+        feed['number'] = feed_number
+        feed['play_order'] = play_order
+        
+        entry_number = 0
+        for entry in feed['entries']:
+            play_order += 1
+            entry_number += 1
+            entry['number'] = entry_number
+            entry['play_order'] = play_order
+
+    # Wrap data and today's date in a dict to use the magic of **.
+    wrap = {
+        'date': datetime.today().strftime("%Y-%m-%d"),
+        'feeds': data,
+    }
+    
+    my_log.debug_print( '='*10)
+    my_log.debug_print( ' '*1 + 'date: ' + wrap['date'])
+    my_log.debug_print( ' '*1 + 'feeds: ')
+    for feed_data in wrap['feeds']:
+        my_log.debug_print( ' '*3 + 'feed_title: ' + feed_data['title'])
+        my_log.debug_print( ' '*3 + 'feed_num: %d' % (feed_data['number']))
+        my_log.debug_print( ' '*3 + 'order: %d' % (feed_data['play_order']))
+        my_log.debug_print( ' '*3 + 'entries: ' )
+        for entry in feed_data['entries']:
+            my_log.debug_print( ' '*5 + 'entry_title: ' + entry['title'])
+            my_log.debug_print (' '*5 + 'entry_num: %d' % (entry['number']))
+            my_log.debug_print (' '*5 + 'order: %d' % (entry['play_order']))
+
+    # Render and output templates
+
+    ## (HTML)
+    render_and_write('html.html', wrap, 'daily.html', output_dir)
+
+    return True
+
+def build_mobi(data, output_dir ):    
+    if len(data) <= 0:
+        return False
     ## Initialize some counters for the TOC IDs.
     ## We start counting at 2 because 1 is the TOC itself.
     feed_number = 1
@@ -166,6 +216,10 @@ def debug_print_data(data):
         for entry in feed['entries']:
             my_log.debug_print(' '*3 + entry['title'])
 
+def merge_only_title_entries(feed_data):
+    for feed_info in feed_data:
+        pass
+
 if __name__ == "__main__":
     my_log.write_to_log_file('*'*20)
     json_file = "rss.json"
@@ -178,7 +232,9 @@ if __name__ == "__main__":
         fp.close()
         system("rm -rf %s" % json_file)
 
-    rss_data = fetch_rss_content("../config/config.xml")
+    # Give the feeds URLs to Feedparser to have nicely usable feed objects.
+    feeds_config = get_feed_config.get_feeds_from_xml("../config/config.xml") 
+    rss_data = fetch_rss_content(feeds_config)
     if len(rss_data) > 0:
         my_log.write_to_log_file("<--Info-->: New Rss [%d] feeds" % len(rss_data))
         debug_print_data(rss_data)
@@ -186,16 +242,19 @@ if __name__ == "__main__":
     my_log.write_to_log_file("<--Info-->: After merging there is [%d] feeds" % len(merged_data))
     debug_print_data(merged_data)
 
-    if datetime.today().hour == 18:
-        my_log.write_to_log_file("<--Info-->: Writing mobi file")
+    if datetime.today().hour == 8:
+        my_log.write_to_log_file("<--Info-->: Writing output file")
         my_log.debug_print("Running RSSToKindle...")
         my_log.debug_print("-> Generating files...")
-        medium_files_created = build(merged_data, 'temp')
-
-        if medium_files_created:
-            my_log.debug_print("-> Build the MOBI file using KindleGen...")
-            mobi('temp/daily.opf', '../kindlegen/kindlegen')
-        my_log.debug_print("Done")
+        if g_mobi_mode:
+            medium_files_created = build_mobi(merged_data, 'temp')
+            if medium_files_created:
+                my_log.debug_print("-> Build the MOBI file using KindleGen...")
+                mobi('temp/daily.opf', '../kindlegen/kindlegen')
+            my_log.debug_print("Done")
+        else:
+            medium_files_created = build_html(merged_data, 'temp_html')
+            my_log.debug_print("Done")
         
     else:
         my_log.write_to_log_file("<--Info-->: dump json file file")

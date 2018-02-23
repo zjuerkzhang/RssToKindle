@@ -45,6 +45,7 @@ class GeneralParser(object):
         update_time = last_time
         my_log.debug_print("last_time for %s %s" % (self.ini_key, last_time))
         feed = feedparser.parse(self.feed_link)
+        #my_log.debug_print(feed)
         feed_data = {
                         'title': feed.feed.title,
                         'entries': [],

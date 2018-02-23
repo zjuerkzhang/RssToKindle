@@ -13,8 +13,8 @@ class WallOutsideParser(GeneralParser):
         pattern = re.compile('<.+>')
         ret_str = pattern.sub('', ret_str)
         pattern = re.compile('\n')
-        ret_str = pattern.sub('\n<p></p>', ret_str)
-        return ret_str        
+        ret_str = pattern.sub('</p><p>', ret_str)
+        return '<p>' + ret_str + '</p>'
 
 if __name__ == "__main__":
     feed_info = {} 

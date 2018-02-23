@@ -1,7 +1,7 @@
 import codecs
 import time
 
-debug_switch_on = 0 
+debug_switch_on = 0
 log_file_name = "../log/RSS2Kindle.log"
 
 
