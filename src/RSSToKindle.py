@@ -231,6 +231,9 @@ if __name__ == "__main__":
         org_rss_data = json.load(fp, encoding="utf8")
         fp.close()
         system("rm -rf %s" % json_file)
+    my_log.write_to_log_file("<--Info-->: Original Rss [%d] feeds" % len(org_rss_data))
+    if len(org_rss_data) > 0:
+        debug_print_data(org_rss_data)
 
     # Give the feeds URLs to Feedparser to have nicely usable feed objects.
     feeds_config = get_feed_config.get_feeds_from_xml("../config/config.xml") 
@@ -242,22 +245,26 @@ if __name__ == "__main__":
     my_log.write_to_log_file("<--Info-->: After merging there is [%d] feeds" % len(merged_data))
     debug_print_data(merged_data)
 
-    if datetime.today().hour == 8:
-        my_log.write_to_log_file("<--Info-->: Writing output file")
-        my_log.debug_print("Running RSSToKindle...")
-        my_log.debug_print("-> Generating files...")
-        if g_mobi_mode:
+    current_hour = datetime.today().hour
+    if g_mobi_mode:
+        if current_hour == 23:
+            my_log.write_to_log_file("<--Info-->: Writing mobi file")
             medium_files_created = build_mobi(merged_data, 'temp')
             if medium_files_created:
                 my_log.debug_print("-> Build the MOBI file using KindleGen...")
                 mobi('temp/daily.opf', '../kindlegen/kindlegen')
             my_log.debug_print("Done")
         else:
-            medium_files_created = build_html(merged_data, 'temp_html')
-            my_log.debug_print("Done")
-        
+            my_log.write_to_log_file("<--Info-->: dump json file file")
+            fp = open(json_file, "w")
+            json.dump(merged_data, fp)
+            fp.close()    
     else:
-        my_log.write_to_log_file("<--Info-->: dump json file file")
-        fp = open(json_file, "w")
-        json.dump(merged_data, fp)
-        fp.close()
+        medium_files_created = build_html(merged_data, 'temp_html')
+        my_log.debug_print("Done")
+        if current_hour != 23:
+            my_log.write_to_log_file("<--Info-->: dump json file file")
+            fp = open(json_file, "w")
+            json.dump(merged_data, fp)
+            fp.close()
+            

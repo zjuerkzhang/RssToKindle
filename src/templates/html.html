@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>News {{date}}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="./css/KUG.css" type="text/css" />
+    <style>
+      div.customer {
+        font-size: 16px;
+      }
+      @media screen and (max-device-width: 800px) {
+        div.customer {
+          font-size: 24px;
+        }
+        body {
+          background-color: #FFE4B5;
+        }
+     }
+    </style>
+  </head>
+  <body>
+    <div class="customer">
+    <h1>每日要闻：{{date}}</h1>
+    <h1>目录</h1>
+    <ul>
+    {% for feed in feeds %}
+        <li><a href="#id_{{feed.number}}">{{feed.title}}</a></li>
+        <ul>
+          {% for entry in feed.entries %}
+          <li><a href="#id_{{feed.number}}.{{entry.number}}">{{entry.title}}</a></li>
+          {% endfor %}
+        </ul>
+    {% endfor %}
+    </ul>
+    <p class="pagebreak">&nbsp;</p>
+
+    {% for feed in feeds %}
+        <h1 id="id_{{feed.number}}">{{feed.title}}</h1>
+
+        {% for entry in feed.entries %}
+            <h2 id="id_{{feed.number}}.{{entry.number}}">{{entry.title}}</h2>
+            {{entry.description}}
+        <p class="pagebreak">&nbsp;</p>
+        {% endfor %}
+    {% endfor %}
+    </div>
+    
+  </body>
+</html>

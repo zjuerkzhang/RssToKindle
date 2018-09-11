@@ -25,7 +25,7 @@ class FTParser(GeneralParser):
             my_log.write_to_log_file(e.fp.read())
             return ''
         html = page.read()
-        pattern = re.compile('<div class="story-body">.*?<div class="clearfloat"></div>', re.S)
+        pattern = re.compile('<div id="story-body-container">.*?<div class="clearfloat"></div>', re.S)
         strs = pattern.findall(html)
         content = strs[0]
         re_filter = re.compile('<script.*?/script>')

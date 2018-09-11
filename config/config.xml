@@ -43,10 +43,12 @@
             <keyword>联合早报</keyword>
         </keywords>
     </feed>
+<!--
     <feed>
         <link>http://www.ftchinese.com/rss/hotstoryby7day</link>
         <parser>FTParser</parser>
         <nick>FT</nick>
     </feed>
+-->
 </feeds>
 </config>
